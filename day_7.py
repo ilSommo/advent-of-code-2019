@@ -8,6 +8,60 @@ import itertools
 from collections import deque
 
 
+def main():
+    """Solve day 7 puzzles."""
+    with open("data/day_7.txt", encoding="ascii") as input_file:
+        puzzle_input = input_file.read().rstrip()
+
+    print(star_1(puzzle_input))
+    print(star_2(puzzle_input))
+
+
+def star_1(puzzle_input):
+    """Solve first puzzle."""
+    program = load_program(puzzle_input)
+    max_signal = 0
+
+    for phases in itertools.permutations(range(5)):
+        amplifiers = [Amplifier(program, phase) for phase in phases]
+        signal = 0
+
+        for amplifier in amplifiers:
+            amplifier.inputs.append(signal)
+            signal = amplifier.run()
+
+        max_signal = max(max_signal, signal)
+
+    return max_signal
+
+
+def star_2(puzzle_input):
+    """Solve second puzzle."""
+    program = load_program(puzzle_input)
+    max_signal = 0
+
+    for phases in itertools.permutations(range(5, 10)):
+        amplifiers = [Amplifier(program, phase) for phase in phases]
+        amplifiers[0].inputs.append(0)
+        output = 0
+        i = 0
+
+        while any(not amplifier.halted for amplifier in amplifiers):
+            signal = amplifiers[i].run()
+
+            if signal is not None:
+                amplifiers[(i + 1) % 5].inputs.append(signal)
+
+            if i == 4 and signal:
+                output = signal
+
+            i = (i + 1) % 5
+
+        max_signal = max(max_signal, output)
+
+    return max_signal
+
+
 class Amplifier:
     """Amplifier."""
 
@@ -83,60 +137,6 @@ class Amplifier:
         self.halted = True
 
         return 0
-
-
-def main():
-    """Solve day 7 puzzles."""
-    with open("data/day_7.txt", encoding="ascii") as input_file:
-        puzzle_input = input_file.read().rstrip()
-
-    print(star_1(puzzle_input))
-    print(star_2(puzzle_input))
-
-
-def star_1(puzzle_input):
-    """Solve first puzzle."""
-    program = load_program(puzzle_input)
-    max_signal = 0
-
-    for phases in itertools.permutations(range(5)):
-        amplifiers = [Amplifier(program, phase) for phase in phases]
-        signal = 0
-
-        for amplifier in amplifiers:
-            amplifier.inputs.append(signal)
-            signal = amplifier.run()
-
-        max_signal = max(max_signal, signal)
-
-    return max_signal
-
-
-def star_2(puzzle_input):
-    """Solve second puzzle."""
-    program = load_program(puzzle_input)
-    max_signal = 0
-
-    for phases in itertools.permutations(range(5, 10)):
-        amplifiers = [Amplifier(program, phase) for phase in phases]
-        amplifiers[0].inputs.append(0)
-        output = 0
-        i = 0
-
-        while any(not amplifier.halted for amplifier in amplifiers):
-            signal = amplifiers[i].run()
-
-            if signal is not None:
-                amplifiers[(i + 1) % 5].inputs.append(signal)
-
-            if i == 4 and signal:
-                output = signal
-
-            i = (i + 1) % 5
-
-        max_signal = max(max_signal, output)
-
-    return max_signal
 
 
 def load_program(puzzle_input):
