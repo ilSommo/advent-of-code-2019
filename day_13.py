@@ -86,7 +86,7 @@ class Arcade:
             old_ball = self._ball
 
     def run(self, input_):
-        """Run robot with given panel."""
+        """Run arcade with given joystick input."""
 
         output = []
 
